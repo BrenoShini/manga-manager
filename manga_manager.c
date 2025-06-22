@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define MAX_TITLE 100
 #define MAX_AUTHOR 100
@@ -45,6 +46,64 @@ SecondaryIndex *secondary_indices = NULL;
 int primary_count = 0;
 int secondary_count = 0;
 
+// Função para remover espaços extras e converter para lowercase
+void normalize_string(char *str) {
+    char temp[MAX_TITLE];
+    int i = 0, j = 0;
+    
+    // Remover espaços do início
+    while (str[i] && isspace(str[i])) {
+        i++;
+    }
+    
+    // Copiar caracteres convertendo para lowercase e removendo espaços extras
+    while (str[i]) {
+        if (isspace(str[i])) {
+            // Adicionar apenas um espaço se não for o último caractere
+            if (j > 0 && temp[j-1] != ' ') {
+                temp[j++] = ' ';
+            }
+        } else {
+            temp[j++] = tolower(str[i]);
+        }
+        i++;
+    }
+    
+    // Remover espaço do final
+    if (j > 0 && temp[j-1] == ' ') {
+        j--;
+    }
+    
+    temp[j] = '\0';
+    strcpy(str, temp);
+}
+
+// Função para verificar se uma string contém outra (busca parcial)
+int contains_substring(const char *haystack, const char *needle) {
+    char normalized_haystack[MAX_TITLE], normalized_needle[MAX_TITLE];
+    
+    strcpy(normalized_haystack, haystack);
+    strcpy(normalized_needle, needle);
+    
+    normalize_string(normalized_haystack);
+    normalize_string(normalized_needle);
+    
+    return strstr(normalized_haystack, normalized_needle) != NULL;
+}
+
+// Função para comparar títulos de forma mais flexível
+int compare_titles(const char *title1, const char *title2) {
+    char normalized1[MAX_TITLE], normalized2[MAX_TITLE];
+    
+    strcpy(normalized1, title1);
+    strcpy(normalized2, title2);
+    
+    normalize_string(normalized1);
+    normalize_string(normalized2);
+    
+    return strcmp(normalized1, normalized2);
+}
+
 // Função para comparar índices primários (por ISBN)
 int compare_primary(const void *a, const void *b) {
     return strcmp(((PrimaryIndex*)a)->isbn, ((PrimaryIndex*)b)->isbn);
@@ -52,7 +111,7 @@ int compare_primary(const void *a, const void *b) {
 
 // Função para comparar índices secundários (por título)
 int compare_secondary(const void *a, const void *b) {
-    return strcmp(((SecondaryIndex*)a)->title, ((SecondaryIndex*)b)->title);
+    return compare_titles(((SecondaryIndex*)a)->title, ((SecondaryIndex*)b)->title);
 }
 
 // Carregar índices primários do arquivo
@@ -128,15 +187,43 @@ long find_manga_by_isbn(const char *isbn) {
     return result ? result->offset : -1;
 }
 
-// Buscar ISBN por título no índice secundário
+// Buscar ISBN por título no índice secundário (busca exata e parcial)
 char* find_isbn_by_title(const char *title) {
-    SecondaryIndex key;
-    strcpy(key.title, title);
+    char normalized_search[MAX_TITLE];
+    strcpy(normalized_search, title);
+    normalize_string(normalized_search);
     
-    SecondaryIndex *result = bsearch(&key, secondary_indices, secondary_count,
-                                     sizeof(SecondaryIndex), compare_secondary);
+    // Primeiro: busca exata
+    for (int i = 0; i < secondary_count; i++) {
+        char normalized_title[MAX_TITLE];
+        strcpy(normalized_title, secondary_indices[i].title);
+        normalize_string(normalized_title);
+        
+        if (strcmp(normalized_search, normalized_title) == 0) {
+            return secondary_indices[i].isbn;
+        }
+    }
     
-    return result ? result->isbn : NULL;
+    // Segundo: busca parcial (substring)
+    for (int i = 0; i < secondary_count; i++) {
+        if (contains_substring(secondary_indices[i].title, title)) {
+            return secondary_indices[i].isbn;
+        }
+    }
+    
+    return NULL;
+}
+
+// Buscar múltiplos ISBNs por título parcial
+void find_multiple_by_partial_title(const char *search_term, char results[][ISBN_SIZE], int *count, int max_results) {
+    *count = 0;
+    
+    for (int i = 0; i < secondary_count && *count < max_results; i++) {
+        if (contains_substring(secondary_indices[i].title, search_term)) {
+            strcpy(results[*count], secondary_indices[i].isbn);
+            (*count)++;
+        }
+    }
 }
 
 // Adicionar índice primário
@@ -185,6 +272,44 @@ void remove_secondary_index(const char *title) {
             break;
         }
     }
+}
+
+// Função para debug - mostra todos os títulos indexados
+void debug_titles() {
+    printf("\n=== DEBUG: TÍTULOS INDEXADOS ===\n");
+    for (int i = 0; i < secondary_count; i++) {
+        char normalized[MAX_TITLE];
+        strcpy(normalized, secondary_indices[i].title);
+        normalize_string(normalized);
+        printf("%d. Original: '%s'\n", i+1, secondary_indices[i].title);
+        printf("   Normalizado: '%s'\n", normalized);
+        printf("   ISBN: %s\n\n", secondary_indices[i].isbn);
+    }
+}
+
+// Exibir dados de um mangá
+void display_manga(const Manga *manga) {
+    printf("\n=== DADOS DO MANGÁ ===\n");
+    printf("ISBN: %s\n", manga->isbn);
+    printf("Título: %s\n", manga->title);
+    printf("Autor(es): %s\n", manga->author);
+    printf("Ano de início: %d\n", manga->start_year);
+    if (manga->end_year == -1) {
+        printf("Ano de fim: Em publicação\n");
+    } else {
+        printf("Ano de fim: %d\n", manga->end_year);
+    }
+    printf("Gênero: %s\n", manga->genre);
+    printf("Revista: %s\n", manga->magazine);
+    printf("Editora: %s\n", manga->publisher);
+    printf("Ano da edição: %d\n", manga->edition_year);
+    printf("Total de volumes: %d\n", manga->total_volumes);
+    printf("Volumes adquiridos: %d\n", manga->acquired_volumes);
+    printf("Lista de volumes: ");
+    for (int i = 0; i < manga->acquired_volumes; i++) {
+        printf("%d ", manga->volumes_list[i]);
+    }
+    printf("\n");
 }
 
 // Criar novo registro de mangá
@@ -274,7 +399,7 @@ void read_manga() {
     char *isbn;
     
     printf("\n=== BUSCAR MANGÁ ===\n");
-    printf("Digite o ISBN ou título: ");
+    printf("Digite o ISBN ou título (pode ser parcial): ");
     getchar();
     fgets(search, MAX_TITLE, stdin);
     search[strcspn(search, "\n")] = 0;
@@ -291,7 +416,43 @@ void read_manga() {
     }
     
     if (offset == -1) {
-        printf("Mangá não encontrado!\n");
+        // Buscar múltiplos resultados para busca parcial
+        char results[10][ISBN_SIZE];
+        int count;
+        find_multiple_by_partial_title(search, results, &count, 10);
+        
+        if (count == 0) {
+            printf("Mangá não encontrado!\n");
+            return;
+        } else if (count == 1) {
+            offset = find_manga_by_isbn(results[0]);
+        } else {
+            printf("\nEncontrados %d mangás:\n", count);
+            for (int i = 0; i < count; i++) {
+                // Buscar e exibir título para cada resultado
+                for (int j = 0; j < secondary_count; j++) {
+                    if (strcmp(secondary_indices[j].isbn, results[i]) == 0) {
+                        printf("%d. %s (%s)\n", i+1, secondary_indices[j].title, results[i]);
+                        break;
+                    }
+                }
+            }
+            
+            int choice;
+            printf("Escolha um mangá (1-%d): ", count);
+            scanf("%d", &choice);
+            
+            if (choice < 1 || choice > count) {
+                printf("Opção inválida!\n");
+                return;
+            }
+            
+            offset = find_manga_by_isbn(results[choice-1]);
+        }
+    }
+    
+    if (offset == -1) {
+        printf("Erro ao localizar mangá!\n");
         return;
     }
     
@@ -312,24 +473,7 @@ void read_manga() {
         return;
     }
     
-    // Exibir dados
-    printf("\n=== DADOS DO MANGÁ ===\n");
-    printf("ISBN: %s\n", manga.isbn);
-    printf("Título: %s\n", manga.title);
-    printf("Autor(es): %s\n", manga.author);
-    printf("Ano de início: %d\n", manga.start_year);
-    printf("Ano de fim: %d\n", manga.end_year == -1 ? printf("Em publicação") : manga.end_year);
-    printf("Gênero: %s\n", manga.genre);
-    printf("Revista: %s\n", manga.magazine);
-    printf("Editora: %s\n", manga.publisher);
-    printf("Ano da edição: %d\n", manga.edition_year);
-    printf("Total de volumes: %d\n", manga.total_volumes);
-    printf("Volumes adquiridos: %d\n", manga.acquired_volumes);
-    printf("Lista de volumes: ");
-    for (int i = 0; i < manga.acquired_volumes; i++) {
-        printf("%d ", manga.volumes_list[i]);
-    }
-    printf("\n");
+    display_manga(&manga);
 }
 
 // Atualizar mangá
@@ -620,6 +764,7 @@ void menu() {
         printf("4. Deletar mangá\n");
         printf("5. Listar todos os mangás\n");
         printf("6. Carregar dados iniciais\n");
+        printf("7. Debug - Mostrar títulos indexados\n");
         printf("0. Sair\n");
         printf("Escolha uma opção: ");
         
@@ -643,6 +788,9 @@ void menu() {
                 break;
             case 6:
                 load_initial_data();
+                break;
+            case 7:
+                debug_titles();
                 break;
             case 0:
                 printf("Saindo...\n");
