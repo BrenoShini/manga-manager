@@ -37,7 +37,7 @@ Cada mangá contém as seguintes informações:
 ### Instalação
 ```bash
 # Clone o repositório
-git clone https://github.com/SEU_USUARIO/manga-manager.git
+git clone https://github.com/BrenoShini/manga-manager.git
 cd manga-manager
 
 # Compile o programa
