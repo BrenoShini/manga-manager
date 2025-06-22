@@ -1,0 +1,50 @@
+# Executáveis
+manga_manager
+*.exe
+*.out
+
+# Arquivos de dados (criados automaticamente)
+*.dat
+mangas.dat
+primary_index.dat
+secondary_index.dat
+
+# Arquivos de compilação
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+
+# Arquivos de debug
+*.gdb
+*.dSYM/
+
+# Arquivos temporários
+*~
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Backup files
+*.bak
+*.backup
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Core dumps
+core
+
+# Arquivos específicos do projeto que devem ser ignorados
+test_*
+backup/
+old/
