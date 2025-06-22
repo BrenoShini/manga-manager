@@ -1,20 +1,20 @@
-# 📚 Sistema de Gerenciamento de Mangás
+# Sistema de Gerenciamento de Mangás
 
-Sistema desenvolvido para a disciplina **SCC0503 - Algoritmos e Estruturas de Dados II** da USP São Carlos.
+Sistema desenvolvido para a disciplina **Algoritmos e Estruturas de Dados II** da USP.
 
 Um programa em C que implementa um sistema CRUD completo para gerenciamento de coleções de mangás, utilizando índices primários e secundários para otimização de buscas.
 
-## 🎯 Funcionalidades
+## Funcionalidades
 
-- ✅ **CRUD Completo**: Criar, ler, atualizar e deletar registros de mangás
-- ✅ **Índices Primários**: Busca eficiente por ISBN (chave primária)
-- ✅ **Índices Secundários**: Busca por título (fracamente ligado via ISBN)
-- ✅ **Busca Binária**: Algoritmo O(log n) para consultas rápidas
-- ✅ **Persistência**: Dados e índices salvos em arquivos
-- ✅ **Confirmação de Deleção**: Segurança contra exclusões acidentais
-- ✅ **Carregamento Inicial**: Importação de dados do arquivo texto fornecido
+- **CRUD Completo**: Criar, ler, atualizar e deletar registros de mangás
+- **Índices Primários**: Busca eficiente por ISBN (chave primária)
+- **Índices Secundários**: Busca por título (fracamente ligado via ISBN)
+- **Busca Binária**: Algoritmo O(log n) para consultas rápidas
+- **Persistência**: Dados e índices salvos em arquivos
+- **Confirmação de Deleção**: Segurança contra exclusões acidentais
+- **Carregamento Inicial**: Importação de dados do arquivo texto fornecido
 
-## 🗂️ Estrutura de Dados
+## Estrutura de Dados
 
 Cada mangá contém as seguintes informações:
 - **ISBN**: Identificador único
@@ -27,9 +27,9 @@ Cada mangá contém as seguintes informações:
 - **Ano da edição**: Versão específica
 - **Volumes**: Total e lista dos volumes adquiridos
 
-## 🚀 Como Executar
+## Como Executar
 
-### Pré-requisitos
+## Pré-requisitos
 - GCC (GNU Compiler Collection)
 - Make
 - Sistema Linux/Unix (testado no Ubuntu)
@@ -37,7 +37,7 @@ Cada mangá contém as seguintes informações:
 ### Instalação
 ```bash
 # Clone o repositório
-git clone https://github.com/SEU_USUARIO/manga-manager.git
+git clone https://github.com/BrenoShini/manga-manager.git
 cd manga-manager
 
 # Compile o programa
@@ -52,7 +52,7 @@ make run
 2. Escolha a opção **6** para carregar os dados iniciais
 3. Explore as funcionalidades do menu
 
-## 📋 Menu Principal
+## Menu Principal
 
 ```
 === SISTEMA DE GERENCIAMENTO DE MANGÁS ===
@@ -65,16 +65,16 @@ make run
 0. Sair
 ```
 
-## 🏗️ Arquitetura do Sistema
+## Arquitetura do Sistema
 
 ### Índices Implementados
 
-**🔑 Índice Primário (ISBN)**
+**Índice Primário (ISBN)**
 - Acesso direto aos registros
 - Ordenado para busca binária
 - Armazenado em `primary_index.dat`
 
-**📖 Índice Secundário (Título)**
+**Índice Secundário (Título)**
 - Fracamente ligado via ISBN
 - Permite busca por nome do mangá
 - Armazenado em `secondary_index.dat`
@@ -91,7 +91,7 @@ manga-manager/
 └── README.md          # Este arquivo
 ```
 
-## 🔍 Exemplos de Uso
+## Exemplos de Uso
 
 ### Buscar um Mangá
 ```
@@ -115,7 +115,7 @@ Digite o ISBN ou título do mangá a ser atualizado: Attack on Titan
 Novos volumes adquiridos (-1 para manter): 10
 ```
 
-## 🧪 Dados de Teste
+## Dados de Teste
 
 O sistema inclui dados iniciais de mangás populares:
 - Frieren: Beyond Journey's End
@@ -127,7 +127,7 @@ O sistema inclui dados iniciais de mangás populares:
 - Chainsaw Man
 - Naruto
 
-## 🛠️ Comandos Úteis
+## Comandos Úteis
 
 ```bash
 # Compilar
@@ -143,7 +143,7 @@ make clean
 make clean && make
 ```
 
-## 📚 Conceitos Técnicos Aplicados
+## Conceitos Técnicos Aplicados
 
 - **Estruturas de Dados**: Arrays dinâmicos, structs
 - **Algoritmos de Ordenação**: qsort() para manutenção de índices
@@ -152,24 +152,8 @@ make clean && make
 - **Índices de Banco de Dados**: Primários e secundários
 - **CRUD Operations**: Create, Read, Update, Delete
 
-## 👥 Desenvolvedores
-
-- **[Seu Nome]** - [seu.email@usp.br]
-- **[Nome do Colega]** - [colega.email@usp.br]
-
-**Disciplina**: SCC0503 - Algoritmos e Estruturas de Dados II  
-**Professor(a)**: [Nome da Professora]  
-**Instituição**: ICMC - USP São Carlos  
-**Ano**: 2025
-
-## 📄 Licença
-
-Este projeto foi desenvolvido para fins acadêmicos como parte do curso de Ciências de Computação da USP São Carlos.
-
 ## 🎥 Demonstração
 
 Um vídeo de demonstração do sistema em funcionamento está disponível [aqui](link_do_video) (será adicionado após a gravação).
 
 ---
-
-⭐ **Star** este repositório se ele foi útil para você!
