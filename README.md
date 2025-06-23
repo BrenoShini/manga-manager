@@ -154,6 +154,6 @@ make clean && make
 
 ## 🎥 Demonstração
 
-Um vídeo de demonstração do sistema em funcionamento está disponível [aqui](link_do_video) (será adicionado após a gravação).
+Um vídeo de demonstração do sistema em funcionamento está disponível [aqui](https://youtu.be/65GHQVnHDtY)
 
 ---
